@@ -1,4 +1,4 @@
-const API_KEY = "YOUR_API_KEY";
+const API_KEY = "AIzaSyB94BziVF-t8u0pYrjPMKcNauJMEUlq9zY";
 
 async function generate() {
   const prompt = document.getElementById("prompt").value;
