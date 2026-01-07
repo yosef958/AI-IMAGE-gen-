@@ -1,45 +1,39 @@
-const API_KEY = "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";
-const API_URL = "https://openrouter.ai/api/v1/images/generations";
+const API_KEY = "YOUR_API_KEY";
 
-const btn = document.getElementById("generateBtn");
-const img1 = document.getElementById("img1");
-const img2 = document.getElementById("img2");
-const img3 = document.getElementById("img3");
-
-btn.addEventListener("click", generateImages);
-
-async function generateImages() {
+async function generate() {
   const prompt = document.getElementById("prompt").value;
-  if (!prompt) {
-    alert("اكتب وصف للصورة");
-    return;
-  }
+  if (!prompt) return alert("اكتب وصف الصورة");
 
-  img1.src = img2.src = img3.src = "";
+  const boxes = document.querySelectorAll(".img-box img");
+
+  boxes.forEach(img => img.src = "");
 
   try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "stabilityai/stable-diffusion-xl-base-1.0",
-        prompt: prompt,
-        n: 3,
-        size: "512x512"
-      })
-    });
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:generateImages?key=${API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: prompt,
+          numberOfImages: 3
+        })
+      }
+    );
 
     const data = await res.json();
 
-    img1.src = data.data[0].url;
-    img2.src = data.data[1].url;
-    img3.src = data.data[2].url;
+    if (!data.images) {
+      console.log(data);
+      return alert("فشل التوليد");
+    }
 
-  } catch (error) {
-    console.error(error);
-    alert("صار خطأ أثناء توليد الصور");
+    data.images.forEach((img, i) => {
+      boxes[i].src = `data:image/png;base64,${img.imageBytes}`;
+    });
+
+  } catch (e) {
+    console.error(e);
+    alert("مشكلة في الاتصال");
   }
 }
